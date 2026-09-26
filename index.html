@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Math Arkanoid Lite - Optimización (20s)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #0d0714;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 680px;
+      display: flex;
+      flex-direction: column;
+      background: #140c24;
+      border: 2px solid #00f0ff;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background: #090410;
+      border-bottom: 2px solid #331954;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .hud-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hud-label {
+      font-size: 10px;
+      color: #a084dc;
+      text-transform: uppercase;
+    }
+
+    .hud-val {
+      font-size: 16px;
+      color: #00f0ff;
+    }
+
+    #timer-val {
+      color: #ffea00;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      background: #0b0517;
+      display: block;
+    }
+
+    .modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 5, 20, 0.96);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 400px;
+      background: #1a0f30;
+      border: 2px solid #ff007f;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      color: #ff007f;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      color: #00f0ff;
+      margin-bottom: 15px;
+    }
+
+    .q-timer-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #2a1845;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .q-timer-bar {
+      width: 100%;
+      height: 100%;
+      background: #ffea00;
+      transition: width 0.1s linear;
+    }
+
+    .question-text {
+      font-size: 15px;
+      color: #ffffff;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .option-btn {
+      background: #261343;
+      border: 1.5px solid #00f0ff;
+      color: #ffffff;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .option-btn:active {
+      background: #00f0ff;
+      color: #000000;
+    }
+
+    .action-btn {
+      background: linear-gradient(90deg, #ff007f, #7928ca);
+      border: none;
+      color: #ffffff;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 15px;
+      text-transform: uppercase;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    #touch-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #888;
+      font-size: 12px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <div id="hud">
+      <div class="hud-box">
+        <span class="hud-label">Puntos</span>
+        <span class="hud-val" id="score-display">0</span>
+      </div>
+      <div class="hud-box">
+        <span class="hud-label">Tiempo Juego</span>
+        <span class="hud-val" id="timer-val">20.0s</span>
+      </div>
+      <div class="hud-box">
+        <span class="hud-label">Pregunta</span>
+        <span class="hud-val" id="q-progress">1 / 10</span>
+      </div>
+    </div>
+
+    <canvas id="canvas" width="480" height="580"></canvas>
+    
+    <div id="touch-controls"> Desliza aquí para mover la paleta </div>
+
+    <!-- Modal Inicio -->
+    <div id="start-modal" class="modal">
+      <div class="modal-box">
+        <div class="modal-title">Math Arkanoid</div>
+        <div class="modal-subtitle">Optimización y Multiplicadores de Lagrange</div>
+        <p style="font-size: 13px; color: #ccc; margin-bottom: 20px; line-height: 1.5;">
+          • Responde cada pregunta en menos de <strong>20s</strong>.<br>
+          • Si aciertas, juegas <strong>20 segundos</strong> de Arkanoid.<br>
+          • Si te equivocas o se agota el tiempo, el juego se <strong>REINICIA</strong> por completo.
+        </p>
+        <button class="action-btn" onclick="startGame()">Comenzar</button>
+      </div>
+    </div>
+
+    <!-- Modal Cuestionario -->
+    <div id="quiz-modal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-title" id="quiz-title">Pregunta 1 de 10</div>
+        <div class="modal-subtitle">Tienes 20 segundos para responder</div>
+        
+        <div class="q-timer-bar-container">
+          <div id="q-timer-bar" class="q-timer-bar"></div>
+        </div>
+
+        <div class="question-text" id="question-text">¿Cargando pregunta?</div>
+        
+        <div class="options-grid" id="options-grid"></div>
+      </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div id="gameover-modal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-title" style="color: #ff0055;" id="gameover-title">¡REINICIO TOTAL!</div>
+        <div style="font-size: 14px; margin: 15px 0;" id="gameover-msg">Respuesta incorrecta o tiempo agotado.</div>
+        <button class="action-btn" onclick="restartToBeginning()">Intentar de Nuevo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTION_BANK = [
+      {
+        q: "¿Cuál es la condición necesaria de primer orden para un extremo relativo de f(x)?",
+        options: ["f'(x) = 0 o no existe", "f''(x) > 0", "f'(x) = 1", "f''(x) = 0"],
+        correct: 0
+      },
+      {
+        q: "Si f''(c) > 0 en un punto crítico 'c', ¿qué tipo de punto tenemos?",
+        options: ["Mínimo relativo", "Máximo relativo", "Punto de inflexión", "Punto silla"],
+        correct: 0
+      },
+      {
+        q: "Si f''(c) < 0 en un punto crítico 'c', ¿qué indica el criterio de la segunda derivada?",
+        options: ["Máximo relativo", "Mínimo relativo", "Punto silla", "Criterio no concluyente"],
+        correct: 0
+      },
+      {
+        q: "En el método de Multiplicadores de Lagrange con restricción g(x,y)=k, la ecuación fundamental es:",
+        options: ["∇f = λ ∇g", "∇f · ∇g = 0", "∇f + ∇g = 0", "f(x,y) = λ g(x,y)"],
+        correct: 0
+      },
+      {
+        q: "En funciones de dos variables, si el Hesiano D > 0 y f_xx < 0, se trata de:",
+        options: ["Un máximo relativo", "Un mínimo relativo", "Un punto silla", "No concluyente"],
+        correct: 0
+      },
+      {
+        q: "Si la matriz Hesiana tiene discriminante D < 0 en un punto crítico, el punto es:",
+        options: ["Un punto silla", "Un mínimo relativo", "Un máximo absoluto", "Un mínimo absoluto"],
+        correct: 0
+      },
+      {
+        q: "¿Qué representa la variable 'λ' (Lambda) en los multiplicadores de Lagrange?",
+        options: ["La tasa de cambio del valor óptimo respecto a la restricción", "La distancia al origen", "El ángulo de inclinación", "La segunda derivada de f"],
+        correct: 0
+      },
+      {
+        q: "Para maximizar el área de un rectángulo con perímetro fijo P, la figura óptima es:",
+        options: ["Un cuadrado", "Un triángulo", "Un rectángulo de base doble que la altura", "Un rombo de 45°"],
+        correct: 0
+      },
+      {
+        q: "¿Cuál es el primer paso para resolver un problema de optimización con Lagrange?",
+        options: ["Formular la función Lagrangeana L = f - λ(g - k)", "Calcular la integral de la función", "Igualar la función a cero", "Derivar f dos veces"],
+        correct: 0
+      },
+      {
+        q: "Si D = f_xx * f_yy - (f_xy)² = 0 en el criterio del Hesiano, el resultado es:",
+        options: ["No concluyente", "Un punto silla", "Un máximo global", "Un mínimo global"],
+        correct: 0
+      },
+      {
+        q: "¿Qué indica un valor f'(c) = 0 donde la derivada no cambia de signo a los lados de 'c'?",
+        options: ["Punto de inflexión (sin extremo)", "Máximo relativo", "Mínimo relativo", "Punto discontinuo"],
+        correct: 0
+      },
+      {
+        q: "La función f(x) = x² + 4x + 5 tiene su valor mínimo en x igual a:",
+        options: ["-2", "2", "0", "-4"],
+        correct: 0
+      },
+      {
+        q: "Al optimizar f(x,y) sujeto a dos restricciones g1=0 y g2=0, el sistema de Lagrange usa:",
+        options: ["∇f = λ ∇g1 + μ ∇g2", "∇f = λ (∇g1 · ∇g2)", "∇f = ∇g1 + ∇g2", "∇f = λ ∇g1 - λ ∇g2"],
+        correct: 0
+      }
+    ];
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentQuestions = [];
+    let currentQuestionIdx = 0;
+    let score = 0;
+    
+    let gameRoundTimer = null;
+    let gameTimeRemaining = 20.0;
+    
+    let quizTimer = null;
+    let quizTimeRemaining = 20.0;
+    
+    let isPlayingGame = false;
+    let animFrameId = null;
+
+    const paddle = { x: 200, y: 530, w: 80, h: 12, speed: 7, dx: 0 };
+    const ball = { x: 240, y: 510, r: 6, vx: 3, vy: -4, active: true };
+    let bricks = [];
+    const brickRows = 5;
+    const brickCols = 6;
+    const brickPadding = 6;
+    const brickOffsetTop = 40;
+    const brickOffsetLeft = 15;
+    const brickWidth = 70;
+    const brickHeight = 16;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq, duration) {
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'square';
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e){}
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function generateQuestionSet() {
+      const shuffledBank = shuffleArray([...QUESTION_BANK]);
+      const selected = shuffledBank.slice(0, 10);
+      
+      return selected.map(qObj => {
+        const opts = [...qObj.options];
+        const correctText = opts[qObj.correct];
+        shuffleArray(opts);
+        return {
+          q: qObj.q,
+          options: opts,
+          correctIndex: opts.indexOf(correctText)
+        };
+      });
+    }
+
+    function initBricks() {
+      bricks = [];
+      const colors = ['#ff007f', '#00f0ff', '#ffea00', '#00ff66', '#a084dc'];
+      for (let r = 0; r < brickRows; r++) {
+        bricks[r] = [];
+        for (let c = 0; c < brickCols; c++) {
+          bricks[r][c] = { 
+            x: brickOffsetLeft + c * (brickWidth + brickPadding), 
+            y: brickOffsetTop + r * (brickHeight + brickPadding), 
+            status: 1,
+            color: colors[r % colors.length]
+          };
+        }
+      }
+    }
+
+    function startGame() {
+      document.getElementById('start-modal').classList.add('hidden');
+      document.getElementById('gameover-modal').classList.add('hidden');
+      score = 0;
+      currentQuestionIdx = 0;
+      document.getElementById('score-display').textContent = score;
+      
+      currentQuestions = generateQuestionSet();
+      initBricks();
+      resetBallAndPaddle();
+      
+      showQuestionModal();
+    }
+
+    function showQuestionModal() {
+      isPlayingGame = false;
+      clearInterval(gameRoundTimer);
+      
+      if (currentQuestionIdx >= 10) {
+        document.getElementById('gameover-title').textContent = "¡VICTORIA TOTAL!";
+        document.getElementById('gameover-title').style.color = "#00ff66";
+        document.getElementById('gameover-msg').textContent = `Completaste las 10 preguntas. Puntuación final: ${score}`;
+        document.getElementById('gameover-modal').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('q-progress').textContent = `${currentQuestionIdx + 1} / 10`;
+      document.getElementById('quiz-title').textContent = `Pregunta ${currentQuestionIdx + 1} de 10`;
+      
+      const qData = currentQuestions[currentQuestionIdx];
+      document.getElementById('question-text').textContent = qData.q;
+      
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+      
+      qData.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + idx)}) ${optText}`;
+        btn.onclick = () => handleAnswer(idx);
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('quiz-modal').classList.remove('hidden');
+
+      quizTimeRemaining = 20.0;
+      const bar = document.getElementById('q-timer-bar');
+      bar.style.width = '100%';
+
+      clearInterval(quizTimer);
+      quizTimer = setInterval(() => {
+        quizTimeRemaining -= 0.1;
+        const pct = Math.max(0, (quizTimeRemaining / 20.0) * 100);
+        bar.style.width = pct + '%';
+
+        if (quizTimeRemaining <= 0) {
+          clearInterval(quizTimer);
+          triggerGameOver("¡Tiempo agotado en la pregunta!");
+        }
+      }, 100);
+    }
+
+    function handleAnswer(selectedIndex) {
+      clearInterval(quizTimer);
+      const qData = currentQuestions[currentQuestionIdx];
+
+      if (selectedIndex === qData.correctIndex) {
+        playBeep(600, 0.15);
+        score += 100;
+        document.getElementById('score-display').textContent = score;
+        document.getElementById('quiz-modal').classList.add('hidden');
+        
+        startArkanoidRound();
+      } else {
+        triggerGameOver("Respuesta Incorrecta.");
+      }
+    }
+
+    function startArkanoidRound() {
+      isPlayingGame = true;
+      gameTimeRemaining = 20.0;
+      document.getElementById('timer-val').textContent = gameTimeRemaining.toFixed(1) + 's';
+
+      clearInterval(gameRoundTimer);
+      gameRoundTimer = setInterval(() => {
+        gameTimeRemaining -= 0.1;
+        if (gameTimeRemaining <= 0) {
+          gameTimeRemaining = 0;
+          clearInterval(gameRoundTimer);
+          isPlayingGame = false;
+          
+          currentQuestionIdx++;
+          showQuestionModal();
+        }
+        document.getElementById('timer-val').textContent = Math.max(0, gameTimeRemaining).toFixed(1) + 's';
+      }, 100);
+
+      if (!animFrameId) {
+        gameLoop();
+      }
+    }
+
+    function triggerGameOver(msg) {
+      isPlayingGame = false;
+      clearInterval(gameRoundTimer);
+      clearInterval(quizTimer);
+      playBeep(150, 0.4);
+
+      document.getElementById('quiz-modal').classList.add('hidden');
+      document.getElementById('gameover-title').textContent = "¡REINICIO TOTAL!";
+      document.getElementById('gameover-title').style.color = "#ff0055";
+      document.getElementById('gameover-msg').textContent = `${msg} El juego regresará a la Pregunta 1.`;
+      document.getElementById('gameover-modal').classList.remove('hidden');
+    }
+
+    function restartToBeginning() {
+      startGame();
+    }
+
+    function resetBallAndPaddle() {
+      paddle.x = (canvas.width - paddle.w) / 2;
+      ball.x = canvas.width / 2;
+      ball.y = paddle.y - 10;
+      ball.vx = (Math.random() > 0.5 ? 1 : -1) * 3;
+      ball.vy = -4;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') paddle.dx = -paddle.speed;
+      if (e.key === 'ArrowRight' || e.key === 'd') paddle.dx = paddle.speed;
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'a' || e.key === 'd') paddle.dx = 0;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touchX = e.touches[0].clientX - rect.left;
+      paddle.x = touchX - paddle.w / 2;
+    }, { passive: false });
+
+    function update() {
+      if (!isPlayingGame) return;
+
+      paddle.x += paddle.dx;
+      if (paddle.x < 0) paddle.x = 0;
+      if (paddle.x + paddle.w > canvas.width) paddle.x = canvas.width - paddle.w;
+
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) {
+        ball.vx = -ball.vx;
+        playBeep(300, 0.05);
+      }
+      if (ball.y - ball.r < 0) {
+        ball.vy = -ball.vy;
+        playBeep(300, 0.05);
+      }
+
+      if (ball.y + ball.r > canvas.height) {
+        playBeep(200, 0.2);
+        resetBallAndPaddle();
+      }
+
+      if (
+        ball.y + ball.r >= paddle.y &&
+        ball.y - ball.r <= paddle.y + paddle.h &&
+        ball.x >= paddle.x &&
+        ball.x <= paddle.x + paddle.w
+      ) {
+        let hitPoint = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+        ball.vx = hitPoint * 4.5;
+        ball.vy = -Math.abs(ball.vy);
+        playBeep(400, 0.05);
+      }
+
+      let remainingBricks = 0;
+      for (let r = 0; r < brickRows; r++) {
+        for (let c = 0; c < brickCols; c++) {
+          let b = bricks[r][c];
+          if (b.status === 1) {
+            remainingBricks++;
+            if (
+              ball.x > b.x &&
+              ball.x < b.x + brickWidth &&
+              ball.y - ball.r < b.y + brickHeight &&
+              ball.y + ball.r > b.y
+            ) {
+              ball.vy = -ball.vy;
+              b.status = 0;
+              score += 20;
+              document.getElementById('score-display').textContent = score;
+              playBeep(500, 0.05);
+            }
+          }
+        }
+      }
+
+      if (remainingBricks === 0) {
+        initBricks();
+        resetBallAndPaddle();
+      }
+    }
+
+    function render() {
+      ctx.fillStyle = '#0b0517';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let r = 0; r < brickRows; r++) {
+        for (let c = 0; c < brickCols; c++) {
+          let b = bricks[r][c];
+          if (b.status === 1) {
+            ctx.fillStyle = b.color;
+            ctx.fillRect(b.x, b.y, brickWidth, brickHeight);
+          }
+        }
+      }
+
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+      ctx.fillStyle = '#ffea00';
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function gameLoop() {
+      update();
+      render();
+      animFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    render();
+  </script>
+</body>
+</html>
