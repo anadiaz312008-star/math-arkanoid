@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Math Arkanoid - Ana María Díaz</title>
   <style>
-    /* Reset and mobile touch optimization */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -23,38 +22,36 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #080312;
+      background-color: #0d0714;
       color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* Main Container with Safe-Area Insets for iOS */
     #game-container {
       position: relative;
       width: 100vw;
       height: 100vh;
-      max-width: 450px;
-      max-height: 900px;
+      max-width: 440px;
+      max-height: 932px;
       display: flex;
       flex-direction: column;
-      background: #120924;
-      border: 1.5px solid #00f0ff;
+      background: #140c24;
+      border: 1px solid #00f0ff;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
-      box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
     }
 
-    /* HUD Bar */
+    /* HUD / Marcador */
     #hud {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 14px;
-      background: #090412;
-      border-bottom: 2px solid #2b124c;
+      padding: 10px 14px;
+      background: #090410;
+      border-bottom: 2px solid #331954;
       font-weight: 700;
     }
 
@@ -65,45 +62,42 @@
     }
 
     .hud-label {
-      font-size: 9px;
-      color: #9d81d6;
+      font-size: 10px;
+      color: #a084dc;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .hud-val {
-      font-size: 15px;
+      font-size: 16px;
       color: #00f0ff;
       font-weight: 800;
+    }
+
+    #lives-val {
+      color: #ff007f;
+      letter-spacing: 2px;
     }
 
     #timer-val {
       color: #ffea00;
     }
 
-    #lives-display {
-      color: #ff0055;
-      font-size: 13px;
-      letter-spacing: 2px;
-    }
-
-    /* Canvas */
     canvas {
       width: 100%;
       height: 100%;
-      background: #0a0416;
+      background: #0b0517;
       display: block;
       touch-action: none;
     }
 
-    /* Modals & Overlays */
     .modal {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(8, 4, 18, 0.96);
+      background: rgba(10, 5, 20, 0.96);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -118,28 +112,27 @@
 
     .modal-box {
       width: 100%;
-      background: #180d2e;
+      background: #1a0f30;
       border: 2px solid #ff007f;
       border-radius: 16px;
       padding: 22px 18px;
       text-align: center;
-      box-shadow: 0 8px 30px rgba(255, 0, 127, 0.25);
+      box-shadow: 0 10px 30px rgba(255, 0, 127, 0.2);
     }
 
     .modal-title {
-      font-size: 22px;
+      font-size: 20px;
       color: #ff007f;
       margin-bottom: 4px;
       text-transform: uppercase;
-      font-weight: 900;
-      letter-spacing: 1px;
+      font-weight: 800;
     }
 
-    .dev-credit {
+    .dev-tag {
       font-size: 12px;
       color: #ffea00;
-      font-weight: 700;
       margin-bottom: 12px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -150,11 +143,11 @@
       margin-bottom: 14px;
     }
 
-    /* Question Timer Bar */
+    /* Barra de progreso de tiempo */
     .q-timer-bar-container {
       width: 100%;
       height: 8px;
-      background: #281442;
+      background: #2a1845;
       border-radius: 4px;
       margin-bottom: 14px;
       overflow: hidden;
@@ -168,25 +161,25 @@
     }
 
     .question-text {
-      font-size: 14px;
+      font-size: 15px;
       color: #ffffff;
       margin-bottom: 18px;
-      line-height: 1.45;
+      line-height: 1.4;
       font-weight: 600;
     }
 
     .options-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 9px;
+      gap: 10px;
       width: 100%;
     }
 
     .option-btn {
-      background: #251240;
+      background: #261343;
       border: 1.5px solid #00f0ff;
       color: #ffffff;
-      padding: 13px 12px;
+      padding: 13px 14px;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 600;
@@ -204,19 +197,30 @@
       background: linear-gradient(90deg, #ff007f, #7928ca);
       border: none;
       color: #ffffff;
-      padding: 14px 28px;
-      font-size: 15px;
+      padding: 15px 30px;
+      font-size: 16px;
       font-weight: 800;
       border-radius: 30px;
       cursor: pointer;
-      margin-top: 14px;
+      margin-top: 15px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .action-btn:active {
-      opacity: 0.85;
-      transform: scale(0.97);
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+
+    .score-badge {
+      background: #231242;
+      border: 1px solid #ffea00;
+      color: #ffea00;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      margin: 15px 0;
+      display: inline-block;
     }
 
     #touch-controls {
@@ -224,14 +228,14 @@
       bottom: env(safe-area-inset-bottom);
       left: 0;
       width: 100%;
-      height: 44px;
+      height: 50px;
       background: rgba(0, 0, 0, 0.3);
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       justify-content: center;
       align-items: center;
       color: #888;
-      font-size: 11px;
+      font-size: 12px;
       pointer-events: none;
     }
   </style>
@@ -239,19 +243,18 @@
 <body>
 
   <div id="game-container">
-    <!-- HUD Header -->
     <div id="hud">
       <div class="hud-box">
         <span class="hud-label">Puntos</span>
         <span class="hud-val" id="score-display">0</span>
       </div>
       <div class="hud-box">
-        <span class="hud-label">Tiempo</span>
-        <span class="hud-val" id="timer-val">20.0s</span>
+        <span class="hud-label">Vidas Arkanoid</span>
+        <span class="hud-val" id="lives-val">❤️❤️❤️</span>
       </div>
       <div class="hud-box">
-        <span class="hud-label">Vidas</span>
-        <span class="hud-val" id="lives-display">❤️❤️❤️</span>
+        <span class="hud-label">Tiempo Juego</span>
+        <span class="hud-val" id="timer-val">20.0s</span>
       </div>
       <div class="hud-box">
         <span class="hud-label">Pregunta</span>
@@ -259,32 +262,32 @@
       </div>
     </div>
 
-    <!-- Canvas -->
     <canvas id="canvas" width="480" height="580"></canvas>
     
     <div id="touch-controls">Desliza aquí para mover la paleta</div>
 
-    <!-- Start Modal -->
+    <!-- Modal Inicio -->
     <div id="start-modal" class="modal">
       <div class="modal-box">
         <div class="modal-title">Math Arkanoid</div>
-        <div class="dev-credit">Desarrolladora: Ana María Díaz</div>
-        <div class="modal-subtitle">Optimización y Multiplicadores de Lagrange</div>
-        <p style="font-size: 12px; color: #ccc; margin-bottom: 18px; line-height: 1.5;">
-          • Tienes <strong>20s</strong> para responder cada pregunta.<br>
-          • Al acertar, juegas <strong>20s</strong> de Arkanoid con 3 vidas.<br>
-          • Si pierdes las 3 vidas en el juego, pasas a la siguiente pregunta.<br>
-          • Si fallas la pregunta o el tiempo expira: <strong>REINICIO TOTAL</strong>.
+        <div class="dev-tag">Desarrolladora: Ana María Díaz</div>
+        <div class="modal-subtitle">Optimización y Lagrange</div>
+        <p style="font-size: 13px; color: #ccc; margin-bottom: 20px; line-height: 1.5;">
+          • Tienes <strong>25s</strong> para responder cada pregunta.<br>
+          • Cada acierto te otorga <strong>10 Puntos</strong> y <strong>20s</strong> de Arkanoid.<br>
+          • Cuentas con <strong>3 Vidas</strong> por ronda de juego.<br>
+          • Si fallas una pregunta, el juego se <strong>REINICIA</strong>.
         </p>
-        <button class="action-btn" onclick="startGame()">Comenzar Juego</button>
+        <button class="action-btn" onclick="startGame()">Comenzar</button>
       </div>
     </div>
 
-    <!-- Quiz Modal -->
+    <!-- Modal Cuestionario -->
     <div id="quiz-modal" class="modal hidden">
       <div class="modal-box">
         <div class="modal-title" id="quiz-title">Pregunta 1 de 10</div>
-        <div class="modal-subtitle">Tienes 20 segundos para responder</div>
+        <div class="dev-tag">Desarrolladora: Ana María Díaz</div>
+        <div class="modal-subtitle">Tienes 25 segundos para responder</div>
         
         <div class="q-timer-bar-container">
           <div id="q-timer-bar" class="q-timer-bar"></div>
@@ -296,38 +299,28 @@
       </div>
     </div>
 
-    <!-- Game Over Modal -->
+    <!-- Modal Game Over / Reinicio -->
     <div id="gameover-modal" class="modal hidden">
       <div class="modal-box">
         <div class="modal-title" style="color: #ff0055;" id="gameover-title">¡REINICIO TOTAL!</div>
-        <div style="font-size: 13px; margin: 14px 0;" id="gameover-msg">Respuesta incorrecta o tiempo agotado.</div>
-        <button class="action-btn" onclick="restartToBeginning()">Intentar de Nuevo</button>
-      </div>
-    </div>
-
-    <!-- Victory Modal -->
-    <div id="victory-modal" class="modal hidden">
-      <div class="modal-box" style="border-color: #ffea00;">
-        <div class="modal-title" style="color: #ffea00;">¡FELICITACIONES!</div>
-        <div class="dev-credit">Juego Diseñado por Ana María Díaz</div>
-        <p style="font-size: 14px; color: #00f0ff; margin: 12px 0; font-weight: 700;" id="victory-msg">
-          ¡Has aprobado el juego respondiendo correctamente las 10 preguntas de optimización!
-        </p>
-        <p style="font-size: 18px; color: #ffffff; font-weight: 800; margin-bottom: 16px;">
-          PUNTUACIÓN FINAL: <span id="final-score-val" style="color: #ffea00;">0</span>
-        </p>
-        <button class="action-btn" onclick="restartToBeginning()">Jugar Otra Vez</button>
+        <div class="dev-tag">Desarrolladora: Ana María Díaz</div>
+        <div style="font-size: 14px; margin-top: 10px;" id="gameover-msg">Respuesta incorrecta o tiempo agotado.</div>
+        
+        <div class="score-badge" id="gameover-score">Puntaje Final: 0 pts</div>
+        
+        <div>
+          <button class="action-btn" onclick="restartToBeginning()">Intentar de Nuevo</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Prevent default touch gestures on mobile Safari
     document.addEventListener('touchmove', function(e) {
       e.preventDefault();
     }, { passive: false });
 
-    // Question Bank: Optimization, Maxima/Minima & Lagrange Multipliers
+    // BANCO DE PREGUNTAS
     const QUESTION_BANK = [
       {
         q: "¿Cuál es la condición necesaria de primer orden para un extremo relativo de f(x)?",
@@ -335,7 +328,7 @@
         correct: 0
       },
       {
-        q: "Si f''(c) > 0 en un punto crítico 'c', ¿qué tipo de extremo representa?",
+        q: "Si f''(c) > 0 en un punto crítico 'c', ¿qué tipo de punto tenemos?",
         options: ["Mínimo relativo", "Máximo relativo", "Punto de inflexión", "Punto silla"],
         correct: 0
       },
@@ -360,17 +353,17 @@
         correct: 0
       },
       {
-        q: "¿Qué representa el multiplicador 'λ' (Lambda) en los problemas de Lagrange?",
+        q: "¿Qué representa la variable 'λ' (Lambda) en los multiplicadores de Lagrange?",
         options: ["La tasa de cambio del valor óptimo respecto a la restricción", "La distancia al origen", "El ángulo de inclinación", "La segunda derivada de f"],
         correct: 0
       },
       {
-        q: "Para maximizar el área de un rectángulo con perímetro fijo P, la forma óptima es:",
+        q: "Para maximizar el área de un rectángulo con perímetro fijo P, la figura óptima es:",
         options: ["Un cuadrado", "Un triángulo", "Un rectángulo de base doble que la altura", "Un rombo de 45°"],
         correct: 0
       },
       {
-        q: "¿Cuál es el primer paso al resolver un problema de optimización con Lagrange?",
+        q: "¿Cuál es el primer paso para resolver un problema de optimización con Lagrange?",
         options: ["Formular la función Lagrangeana L = f - λ(g - k)", "Calcular la integral de la función", "Igualar la función a cero", "Derivar f dos veces"],
         correct: 0
       },
@@ -385,36 +378,34 @@
         correct: 0
       },
       {
-        q: "La función f(x) = x² + 4x + 5 alcanza su valor mínimo en x igual a:",
+        q: "La función f(x) = x² + 4x + 5 tiene su valor mínimo en x igual a:",
         options: ["-2", "2", "0", "-4"],
         correct: 0
       },
       {
-        q: "Al optimizar f(x,y) con dos restricciones g1=0 y g2=0, el sistema de Lagrange usa:",
+        q: "Al optimizar f(x,y) sujeto a dos restricciones g1=0 y g2=0, el sistema de Lagrange usa:",
         options: ["∇f = λ ∇g1 + μ ∇g2", "∇f = λ (∇g1 · ∇g2)", "∇f = ∇g1 + ∇g2", "∇f = λ ∇g1 - λ ∇g2"],
         correct: 0
       }
     ];
 
-    // State Variables
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
     let currentQuestions = [];
     let currentQuestionIdx = 0;
     let score = 0;
-    let arkanoidLives = 3;
+    let currentLives = 3;
     
     let gameRoundTimer = null;
     let gameTimeRemaining = 20.0;
     
     let quizTimer = null;
-    let quizTimeRemaining = 20.0;
+    let quizTimeRemaining = 25.0; // 25s por pregunta
     
     let isPlayingGame = false;
     let animFrameId = null;
 
-    // Arkanoid Objects
     const paddle = { x: 200, y: 530, w: 80, h: 12, speed: 7, dx: 0 };
     const ball = { x: 240, y: 510, r: 6, vx: 3, vy: -4 };
     let bricks = [];
@@ -426,10 +417,9 @@
     const brickWidth = 70;
     const brickHeight = 16;
 
-    // Web Audio Synthesizer
     let audioCtx = null;
 
-    function initAudio() {
+    function initAudioiOS() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
@@ -496,19 +486,14 @@
     }
 
     function updateLivesDisplay() {
-      let hearts = '';
-      for (let i = 0; i < arkanoidLives; i++) {
-        hearts += '❤️';
-      }
-      document.getElementById('lives-display').textContent = hearts || '💀';
+      const hearts = ['🖤🖤🖤', '❤️️🖤🖤', '❤️❤️🖤', '❤️❤️❤️'];
+      document.getElementById('lives-val').textContent = hearts[Math.max(0, currentLives)];
     }
 
     function startGame() {
-      initAudio();
+      initAudioiOS();
       document.getElementById('start-modal').classList.add('hidden');
       document.getElementById('gameover-modal').classList.add('hidden');
-      document.getElementById('victory-modal').classList.add('hidden');
-      
       score = 0;
       currentQuestionIdx = 0;
       document.getElementById('score-display').textContent = score;
@@ -525,9 +510,11 @@
       clearInterval(gameRoundTimer);
       
       if (currentQuestionIdx >= 10) {
-        // Victory state
-        document.getElementById('final-score-val').textContent = score;
-        document.getElementById('victory-modal').classList.remove('hidden');
+        document.getElementById('gameover-title').textContent = "¡FELICITACIONES!";
+        document.getElementById('gameover-title').style.color = "#00ff66";
+        document.getElementById('gameover-msg').textContent = "¡Has aprobado exitosamente el juego de optimización!";
+        document.getElementById('gameover-score').textContent = `Puntaje Final: ${score} / 100 pts (10/10 Acertadas)`;
+        document.getElementById('gameover-modal').classList.remove('hidden');
         return;
       }
 
@@ -550,32 +537,31 @@
 
       document.getElementById('quiz-modal').classList.remove('hidden');
 
-      // Start 20-second quiz timer
-      quizTimeRemaining = 20.0;
+      quizTimeRemaining = 25.0; // 25 Segundos para responder
       const bar = document.getElementById('q-timer-bar');
       bar.style.width = '100%';
 
       clearInterval(quizTimer);
       quizTimer = setInterval(() => {
         quizTimeRemaining -= 0.1;
-        const pct = Math.max(0, (quizTimeRemaining / 20.0) * 100);
+        const pct = Math.max(0, (quizTimeRemaining / 25.0) * 100);
         bar.style.width = pct + '%';
 
         if (quizTimeRemaining <= 0) {
           clearInterval(quizTimer);
-          triggerGameOver("¡Tiempo agotado en la pregunta!");
+          triggerGameOver("¡Tiempo agotado para responder (25s)!");
         }
       }, 100);
     }
 
     function handleAnswer(selectedIndex) {
-      initAudio();
+      initAudioiOS();
       clearInterval(quizTimer);
       const qData = currentQuestions[currentQuestionIdx];
 
       if (selectedIndex === qData.correctIndex) {
         playBeep(600, 0.15);
-        score += 100;
+        score += 10; // 10 puntos por respuesta correcta
         document.getElementById('score-display').textContent = score;
         document.getElementById('quiz-modal').classList.add('hidden');
         
@@ -587,10 +573,9 @@
 
     function startArkanoidRound() {
       isPlayingGame = true;
-      gameTimeRemaining = 20.0;
-      arkanoidLives = 3;
+      currentLives = 3;
       updateLivesDisplay();
-      
+      gameTimeRemaining = 20.0;
       document.getElementById('timer-val').textContent = gameTimeRemaining.toFixed(1) + 's';
 
       clearInterval(gameRoundTimer);
@@ -621,7 +606,8 @@
       document.getElementById('quiz-modal').classList.add('hidden');
       document.getElementById('gameover-title').textContent = "¡REINICIO TOTAL!";
       document.getElementById('gameover-title').style.color = "#ff0055";
-      document.getElementById('gameover-msg').textContent = `${msg} El juego regresará a la Pregunta 1.`;
+      document.getElementById('gameover-msg').textContent = `${msg}`;
+      document.getElementById('gameover-score').textContent = `Puntaje Obtenido: ${score} pts (${currentQuestionIdx} acertadas)`;
       document.getElementById('gameover-modal').classList.remove('hidden');
     }
 
@@ -637,7 +623,6 @@
       ball.vy = -4;
     }
 
-    // Touch Controls
     function handleTouchMove(e) {
       e.preventDefault();
       if (!e.touches || !e.touches[0]) return;
@@ -659,7 +644,6 @@
       ball.x += ball.vx;
       ball.y += ball.vy;
 
-      // Wall Collisions
       if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) {
         ball.vx = -ball.vx;
         playBeep(300, 0.05);
@@ -669,25 +653,24 @@
         playBeep(300, 0.05);
       }
 
-      // Ball Missed (Lose Life)
+      // Caída al fondo (Perder vida)
       if (ball.y + ball.r > canvas.height) {
-        arkanoidLives--;
+        playBeep(200, 0.2);
+        currentLives--;
         updateLivesDisplay();
-        playBeep(200, 0.25);
 
-        if (arkanoidLives <= 0) {
-          // Exhausted all 3 lives: skip remaining Arkanoid time and go to next question
+        if (currentLives <= 0) {
+          // Si agota sus 3 vidas en Arkanoid, pasa a la siguiente pregunta de inmediato
           clearInterval(gameRoundTimer);
           isPlayingGame = false;
           currentQuestionIdx++;
           showQuestionModal();
-          return;
         } else {
           resetBallAndPaddle();
         }
       }
 
-      // Paddle Collision
+      // Rebote Paleta
       if (
         ball.y + ball.r >= paddle.y &&
         ball.y - ball.r <= paddle.y + paddle.h &&
@@ -700,7 +683,7 @@
         playBeep(400, 0.05);
       }
 
-      // Brick Collisions
+      // Rebote Bloques
       let remainingBricks = 0;
       for (let r = 0; r < brickRows; r++) {
         for (let c = 0; c < brickCols; c++) {
@@ -715,8 +698,6 @@
             ) {
               ball.vy = -ball.vy;
               b.status = 0;
-              score += 20;
-              document.getElementById('score-display').textContent = score;
               playBeep(500, 0.05);
             }
           }
@@ -730,10 +711,9 @@
     }
 
     function render() {
-      ctx.fillStyle = '#0a0416';
+      ctx.fillStyle = '#0b0517';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Render Bricks
       for (let r = 0; r < brickRows; r++) {
         for (let c = 0; c < brickCols; c++) {
           let b = bricks[r][c];
@@ -744,11 +724,9 @@
         }
       }
 
-      // Render Paddle
       ctx.fillStyle = '#00f0ff';
       ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
-      // Render Ball
       ctx.fillStyle = '#ffea00';
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
